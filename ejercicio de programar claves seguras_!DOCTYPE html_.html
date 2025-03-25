@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador y Evaluador de Contraseñas Seguras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .password-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .password-box {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            width: 100%;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .generate-btn, .evaluate-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .generate-btn:hover, .evaluate-btn:hover {
+            background-color: #218838;
+        }
+
+        .evaluate-container {
+            margin-top: 20px;
+        }
+
+        .strength-result {
+            margin-top: 10px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .weak {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .average {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .strong {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Generador y Evaluador de Contraseñas Seguras</h1>
+
+    <div class="password-container">
+        <input type="text" id="password" class="password-box" readonly placeholder="Genera una contraseña segura">
+        <br>
+        <button class="generate-btn" id="generateBtn">Generar Contraseña</button>
+    </div>
+
+    <div class="evaluate-container">
+        <button class="evaluate-btn" id="evaluateBtn">Evaluar Contraseña</button>
+        <div id="strengthResult" class="strength-result" style="display:none;"></div>
+        <div id="explanation" class="explanation" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+    // Función para generar contraseñas aleatorias
+    function generatePassword() {
+        const length = 12;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+        document.getElementById("password").value = password;
+    }
+
+    // Función para evaluar la fortaleza de la contraseña
+    function evaluatePassword(password) {
+        const lengthCriteria = password.length >= 12;
+        const uppercaseCriteria = /[A-Z]/.test(password);
+        const lowercaseCriteria = /[a-z]/.test(password);
+        const numberCriteria = /[0-9]/.test(password);
+        const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        let strength = "Débil";
+        let explanation = "";
+
+        if (lengthCriteria && uppercaseCriteria && lowercaseCriteria && numberCriteria && specialCharCriteria) {
+            strength = "Fuerte";
+            explanation = "La contraseña es fuerte porque contiene letras mayúsculas, minúsculas, números y caracteres especiales.";
+        } else if (lengthCriteria && (uppercaseCriteria || lowercaseCriteria) && numberCriteria) {
+            strength = "Promedio";
+            explanation = "La contraseña es promedio. Te recomendamos incluir caracteres especiales para mejorar su seguridad.";
+        } else {
+            strength = "Débil";
+            explanation = "La contraseña es débil. Asegúrate de incluir mayúsculas, minúsculas, números y caracteres especiales.";
+        }
+
+        return { strength, explanation };
+    }
+
+    // Evento para generar una contraseña cuando se hace clic en el botón
+    document.getElementById("generateBtn").addEventListener("click", generatePassword);
+
+    // Evento para evaluar la contraseña cuando se hace clic en el botón
+    document.getElementById("evaluateBtn").addEventListener("click", function() {
+        const password = document.getElementById("password").value;
+        const result = evaluatePassword(password);
+
+        const strengthResultElement = document.getElementById("strengthResult");
+        const explanationElement = document.getElementById("explanation");
+
+        // Mostrar resultados
+        strengthResultElement.style.display = "block";
+        explanationElement.style.display = "block";
+
+        strengthResultElement.textContent = `Fortaleza: ${result.strength}`;
+        explanationElement.textContent = result.explanation;
+
+        // Estilizar según la fortaleza de la contraseña
+        if (result.strength === "Fuerte") {
+            strengthResultElement.className = "strength-result strong";
+        } else if (result.strength === "Promedio") {
+            strengthResultElement.className = "strength-result average";
+        } else {
+            strengthResultElement.className = "strength-result weak";
+        }
+    });
+</script>
+
+</body>
+</html>
